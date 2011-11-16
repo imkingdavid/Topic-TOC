@@ -5,7 +5,7 @@
 *
 *  Topic Age Warning Install File
 *-------------------------------------------------------------------
-*	Script info:
+*    Script info:
 * Version:		1.0.0
 * Copyright:	(C) 2010 | David
 * License:		http://opensource.org/licenses/gpl-2.0.php | GNU Public License v2
@@ -33,13 +33,13 @@ if (!file_exists($phpbb_root_path . 'umil/umil_auto.' . $phpEx))
 }
 
 // The name of the mod to be displayed during installation.
-$mod_name = 'TOPIC_AGE_WARNING';
+$mod_name = 'TOPIC_TABLE_OF_CONTENTS';
 
 /*
 * The name of the config variable which will hold the currently installed version
 * You do not need to set this yourself, UMIL will handle setting and updating the version itself.
 */
-$version_config_name = 'taw_version';
+$version_config_name = 'ttoc_version';
 
 /*
 * The language file which will be included when installing
@@ -52,7 +52,7 @@ $version_config_name = 'taw_version';
 * 'UNINSTALL_' . $mod_name
 * 'UNINSTALL_' . $mod_name . '_CONFIRM'
 */
-$language_file = 'mods/info_acp_taw_install';
+$language_file = 'mods/topic_toc';
 
 /*
 * Options to display to the user (this is purely optional, if you do not need the options you do not have to set up this variable at all)
@@ -82,12 +82,8 @@ $options = array(
 $versions = array(
 	'1.0.0' => array(
 		'config_add'	=> array(
-			array('taw_interval',		0),
-			array('taw_interval_type', 'd'), // d = Day, m = Month, y = Year
-			array('taw_last_post',		1),
-			array('taw_lock',			0),
-			array('taw_author_exempt',	0),
-			array('taw_quickreply',		0),
+			array('ttoc_position',		0), // 0 = Below first post (Default), 1 = Top of topic
+			array('ttoc_every_page', 	0), // 0 = Do not display on every page of the topic, 1 = do display
 		),
 	),
 );
