@@ -7,7 +7,7 @@
 
 	<title lang="en">Topic Age Warning</title>
 	
-	<description lang="en">This MOD allows the topic author and moderators to pick important posts within a topic to be arranged in a Table of Contents for quick and easy access. This MOD utilizes phpBB's hook architecture, so with only 1 file edit required, installation is fast and easy!</description>
+	<description lang="en">This MOD allows the topic author and moderators to pick important posts within a topic to be arranged in a Table of Contents for quick and easy access. This MOD utilizes phpBB's hook architecture, which decreases the amount of file edits needed and makes installation fast and easy!</description>
 
 	<author-notes lang="en">If you would like to make a donation for my work done on this MOD as well as other MODs, you may do so by going to my website (http://www.thedavidking.com/) and clicking the Donate button in the header. All donations are voluntary but appreciated.</author-notes>
 
@@ -47,14 +47,24 @@
         <file from="root/umil/*.*" to="umil/*.*" />
         <file from="root/topic_toc_install.php" to="topic_toc_install.php" />
 	</copy>
-	<open src="includes/constants.php">
+	<!--<open src="includes/constants.php">
 		<edit>
 			<find><![CDATA[// Additional tables]]></find>
 			<action type="after-add"><![CDATA[define('TTOC_TABLE', $table_prefix . 'ttoc');]]></action>
 		</edit>
-	</open>
+	</open>-->
+    <open src="styles/prosilver/template/viewtopic_body.html">
+        <edit>
+            <find><![CDATA[<div class="topic-actions">]]></find>
+            <action type="before-add"><![CDATA[<!-- INCLUDE ttoc_body.html -->]]></action>
+        </edit>
+        <edit>
+            <find><![CDATA[<!-- IF postrow.U_QUOTE --><li class="quote-icon"><a href="{postrow.U_QUOTE}" title="{L_REPLY_WITH_QUOTE}"><span>{L_REPLY_WITH_QUOTE}</span></a></li><!-- ENDIF -->]]></find>
+            <action type="after-add"><![CDATA[<!-- IF S_REORDER --><li class="ttoc-add-icon"><a href="{postrow.U_TTOC_ADD}"><span>{L_ADD_TO_TOC}</span></a></li><!-- ENDIF -->]]></action>
+        </edit>
+    </open>
 	<php-installer>topic_toc_install.php</php-installer>
-	<diy-instructions lang="en"><![CDATA[Once all file edits have been done and the SQL install file has been run, enter the ACP and purge the cache and refresh the templates on which this MOD has been installed. Settings are available in the Post Settings module.]]>
+	<diy-instructions lang="en"><![CDATA[Once all file edits have been done and the SQL install file (topic_toc_install.php) has been run, delete that file, enter the ACP, and purge the cache. You will also need to refresh the templates on which this MOD has been installed.]]>
 	</diy-instructions>
 </action-group>
 </mod>

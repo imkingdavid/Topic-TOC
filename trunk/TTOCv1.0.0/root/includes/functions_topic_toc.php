@@ -18,7 +18,7 @@
 /**
 * @ignore
 */
-if(!defined('IN_PHPBB'))
+if (!defined('IN_PHPBB'))
 {
 	exit;
 }
@@ -58,7 +58,7 @@ class TopicTOC
 	function add($post_id, $title = '', $order = 0)
 	{
 		global $db;
-        if(empty($post_id))
+        if (empty($post_id))
         {
             return false;
         }
@@ -68,7 +68,7 @@ class TopicTOC
 		$post_title = $db->sql_fetchfield('post_title');
 		$db->sql_freeresult($result);
 		//is the post in the topic?
-		if(empty($post_title))
+		if (empty($post_title))
 		{
 			return false;
 		}
@@ -77,16 +77,16 @@ class TopicTOC
 		$sql = 'SELECT location,post FROM ' . TTOC_TABLE . ' WHERE topic = ' . (int) $this->topic_id;
 		$result = $db->sql_query($sql);
 		$last_pos = 0;
-		while($row = $db->sql_fetchrow($result))
+		while ($row = $db->sql_fetchrow($result))
 		{
 			// Don't allow the post to be added to the TOC twice
-			if($row['post'] == $post_id)
+			if ($row['post'] == $post_id)
 			{
 				// no good
 				return false;
 			}
 			// All good? Get the position of the last TOC item
-			if($row['location'] > $last_pos)
+			if ($row['location'] > $last_pos)
 			{
 				$last_pos = $row['location'];
 			}
@@ -97,7 +97,7 @@ class TopicTOC
 		$title = (empty($title)) ? $post_title : $title;
 		$order = ($order) ? $order : ($last_pos + 1);
 		// if the item is being placed before other items reorder them
-		if($order < $last_pos)
+		if ($order < $last_pos)
 		{
 			// increment all TOC items order by one if they come after the current item's slot
 			$sql = 'UPDATE ' . TTOC_TABLE . ' SET location = (location + 1) WHERE location > ' . (int) $order;
@@ -129,7 +129,7 @@ class TopicTOC
 		$db->sql_freeresult($result);
 		// if there is no item, it must not have been inserted.
 		// roll back any changes made
-		if(empty($item['title']) && $reordered)
+		if (empty($item['title']) && $reordered)
 		{
 			$sql = 'UPDATE ' . TTOC_TABLE . ' SET location = (location - 1) WHERE topic = ' . $this->topic_id . ' AND location > ' . (int) $order;
 			$result = $db->sql_query($sql);
@@ -151,7 +151,7 @@ class TopicTOC
 	{
 		global $db;
 		// make sure the arguments are good to go
-		if(empty($item_id) || !is_int($item_id) || !in_array($direction, array('up','down')))
+		if (empty($item_id) || !is_int($item_id) || !in_array($direction, array('up','down')))
 		{
 			return false;
 		}
@@ -163,7 +163,7 @@ class TopicTOC
 		$result = $db->sql_query($sql);
 		$row = $db->sql_fetchrow($result);
 		$db->sql_freeresult($result);
-		if(empty($row))
+		if (empty($row))
 		{
 			return false;
 		}
@@ -174,7 +174,7 @@ class TopicTOC
 			case 'up':
 				$order++;
 				// if the requested order is greater than the maximum order
-				if($row['max_order'] > $order)
+				if ($row['max_order'] > $order)
 				{
 					return false;
 				}
@@ -183,7 +183,7 @@ class TopicTOC
 			case 'down':
 				$order--;
 				// if the requested order is less than the maximum order
-				if($row['max_order'] < $order)
+				if ($row['max_order'] < $order)
 				{
 					return false;
 				}
@@ -215,7 +215,7 @@ class TopicTOC
 	function delete($id, $post_id = false)
 	{
 		global $db;
-        if(empty($id))
+        if (empty($id))
         {
             return false;
         }
@@ -225,7 +225,7 @@ class TopicTOC
 		$result = $db->sql_query($sql);
 		$row = $db->sql_fetchrow($result);
 		$db->sql_freeresult($result);
-		if(empty($row))
+		if (empty($row))
 		{
 				return false;
 		}
@@ -260,7 +260,7 @@ class TopicTOC
 		// The item block
 		$sql = 'SELECT * FROM ' . TTOC_TABLE . ' WHERE topic_id = ' . $this->topic_id . ' ORDER BY location ASC';
 		$result = $db->sql_query($sql);
-		while($row = $db->sql_fetchrow($result))
+		while ($row = $db->sql_fetchrow($result))
 		{
 			$template->assign_block_vars('ttoc', array(
 				'TITLE'		    => $row['title'],
