@@ -55,4 +55,8 @@ $lang = array_merge($lang, array(
 	'TOC_TITLE'			=> 'Table of Contents',
 	'TOC_EXPLAIN'		=> 'The following links will direct you to key points in the topic.',
 	'ADD_TO_TOC'		=> 'Add to TOC',
+    
+    'TTOC_DELETE'       => 'Delete post from TOC',
+    'TTOC_UP'           => 'Move post up one on the TOC',
+    'TTOC_DOWN'         => 'Move post down one on the TOC',
 ));

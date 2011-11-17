@@ -7,7 +7,7 @@
 
 	<title lang="en">Topic Age Warning</title>
 	
-	<description lang="en">This MOD allows the topic author and moderators to pick important posts within a topic to be arranged in a Table of Contents for quick and easy access.</description>
+	<description lang="en">This MOD allows the topic author and moderators to pick important posts within a topic to be arranged in a Table of Contents for quick and easy access. This MOD utilizes phpBB's hook architecture, so with only 1 file edit required, installation is fast and easy!</description>
 
 	<author-notes lang="en">If you would like to make a donation for my work done on this MOD as well as other MODs, you may do so by going to my website (http://www.thedavidking.com/) and clicking the Donate button in the header. All donations are voluntary but appreciated.</author-notes>
 
@@ -40,22 +40,17 @@
 
 <action-group>
 	<copy>
-		<file from="root/*.*" to="*.*" />
+        <file from="root/includes/functions_topic_toc.php" to="includes/functions_topic_toc.php" />
+        <file from="root/includes/hooks/hook_ttoc.php" to="includes/hooks/hook_ttoc.php" />
+        <file from="root/language/en/mods/topic_toc.php" to="language/en/mods/topic_toc.php" />
+        <file from="root/styles/prosilver/template/ttoc_body.html" to="styles/prosilver/template/ttoc_body.html" />
+        <file from="root/umil/*.*" to="umil/*.*" />
+        <file from="root/topic_toc_install.php" to="topic_toc_install.php" />
 	</copy>
 	<open src="includes/constants.php">
 		<edit>
 			<find><![CDATA[// Additional tables]]></find>
 			<action type="after-add"><![CDATA[define('TTOC_TABLE', $table_prefix . 'ttoc');]]></action>
-		</edit>
-	</open>
-	<open src="viewtopic.php">
-		<edit>
-			<find><![CDATA[// Does this topic contain a poll?]]></find>
-			<action type="after-add"><![CDATA[//--- TOPIC TABLE OF CONTENTS ---\\
-include($phpbb_root_path . 'includes/functions_topic_toc.' . $phpEx);
-$ttoc = new TopicTOC($topic_id);
-$ttoc->display();
-//--- END TOPIC TABLE OF CONTENTS ---\\]]></action>
 		</edit>
 	</open>
 	<php-installer>topic_toc_install.php</php-installer>

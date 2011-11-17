@@ -3,11 +3,17 @@
 	<div class="inner"><span class="corners-top"><span></span></span>
 		<h2>{L_TOC_TITLE}</h2>
 		<p>{L_TOC_EXPLAIN}</p>
+        <p><ol>
 		<!-- BEGIN ttoc -->
-			<p><ol>
-				<li><a href="{ttoc.URL}">{ttoc.TITLE}</a></li>
-			</ol></p>
+			<li>
+                <!-- IF S_REORDER -->
+                    <a id="ttoc_del" href="{U_DELETE}">D</a>
+                    <a id="ttoc_up" href="{U_UP}">U</a>
+                    <a id="ttoc_down" href="{U_DOWN"}>D</a>
+                <!-- ENDIF -->
+                <a href="{ttoc.URL}">{ttoc.TITLE}</a></li>
 		<!-- END ttoc -->
+        </ol></p>
 	<span class="corners-bottom"><span></span></span></div>
 </div>
 <!-- ENDIF -->

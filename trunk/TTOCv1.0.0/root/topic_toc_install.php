@@ -81,6 +81,19 @@ $options = array(
 
 $versions = array(
 	'1.0.0' => array(
+        'table_add' => array(
+    		array('phpbb_ttoc', array(
+					'COLUMNS'  	=> array(
+						'id'		=> array('UINT', NULL, 'auto_increment'),
+						'topic'		=> array('UINT', 0), // Topic ID
+						'post'  	=> array('UINT', 0), // Post ID
+						'title'	    => array('VCHAR_UNI', ''), // Name of link
+						'location'	=> array('UINT', 0), // Order (used 'location' because 'order' is reserved by mysql)
+					),
+					'PRIMARY_KEY'	=> 'id',
+				),
+			),
+		),
 		'config_add'	=> array(
 			array('ttoc_position',		0), // 0 = Below first post (Default), 1 = Top of topic
 			array('ttoc_every_page', 	0), // 0 = Do not display on every page of the topic, 1 = do display

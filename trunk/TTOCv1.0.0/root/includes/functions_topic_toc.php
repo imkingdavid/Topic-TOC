@@ -50,7 +50,7 @@ class TopicTOC
  	 * Add a post to the table of contents for the topic
 	 * @param int $post_id Integer ID of the post to add to the TOC
 	 * @param string $title What to name the link; If blank, use the post title
-	 * @param int $order The position of this item in the order of the TOC
+	 * @param int $order The position of this item in the order of the TOC; default to end
 	 *
 	 * @note this uses either 4 or 6 queries depending on the circumstances.
 	 * That's ok because it's not being run on more than one page, so it won't affect load time.
@@ -58,6 +58,10 @@ class TopicTOC
 	function add($post_id, $title = '', $order = 0)
 	{
 		global $db;
+        if(empty($post_id))
+        {
+            return false;
+        }
 		// make sure the post is in the specified topic
 		$sql = 'SELECT post_title FROM ' . TOPICS_TABLE . ' WHERE post_id = ' . (int) $post_id . ' AND topic_id = ' . (int) $this->topic_id;
 		$result = $db->sql_query($sql);
@@ -70,13 +74,13 @@ class TopicTOC
 		}
 		
 		// get the current list of TOC for the current topic
-		$sql = 'SELECT location,post_id FROM ' . TTOC_TABLE . ' WHERE topic_id = ' . (int) $this->topic_id;
+		$sql = 'SELECT location,post FROM ' . TTOC_TABLE . ' WHERE topic = ' . (int) $this->topic_id;
 		$result = $db->sql_query($sql);
 		$last_pos = 0;
 		while($row = $db->sql_fetchrow($result))
 		{
 			// Don't allow the post to be added to the TOC twice
-			if($row['post_id'] == $post_id)
+			if($row['post'] == $post_id)
 			{
 				// no good
 				return false;
@@ -89,7 +93,7 @@ class TopicTOC
 		}
 		$db->sql_freeresult($result);
 		
-		// finalize the variables
+		// finalize the variables that may have been sent as args
 		$title = (empty($title)) ? $post_title : $title;
 		$order = ($order) ? $order : ($last_pos + 1);
 		// if the item is being placed before other items reorder them
@@ -106,9 +110,9 @@ class TopicTOC
 		// now add it to the toc table
 		$sql_ary = array(
 			// what topic is this in?
-			'topic_id'	=> (int) $this->topic_id,
+			'topic'	=> (int) $this->topic_id,
 			// which post to link to
-			'post_id'	=> (int) $post_id,
+			'post'	=> (int) $post_id,
 			// default to the post title if no other title is given
 			'title'		=> $title,
 			// what order to put it in
@@ -119,7 +123,7 @@ class TopicTOC
 		$db->sql_freeresult($result);
 		// Because we changed the order of the items, make sure it inserted properly
 		// Otherwise, we get could weird issues with ordering later on.
-		$sql = 'SELECT * FROM ' . TTOC_TABLE . ' WHERE post_id = ' . (int) $post_id;
+		$sql = 'SELECT * FROM ' . TTOC_TABLE . ' WHERE post = ' . (int) $post_id;
 		$result = $db->sql_query($sql);
 		$item = $db->sql_fetchrow($result);
 		$db->sql_freeresult($result);
@@ -127,7 +131,7 @@ class TopicTOC
 		// roll back any changes made
 		if(empty($item['title']) && $reordered)
 		{
-			$sql = 'UPDATE ' . TTOC_TABLE . ' SET location = (location - 1) WHERE topic_id = ' . $this->topic_id . ' AND location > ' . (int) $order;
+			$sql = 'UPDATE ' . TTOC_TABLE . ' SET location = (location - 1) WHERE topic = ' . $this->topic_id . ' AND location > ' . (int) $order;
 			$result = $db->sql_query($sql);
 			$db->sql_freeresult($result);
 			// it ultimately didn't work :(
@@ -137,8 +141,12 @@ class TopicTOC
 		return true;
 	}
 	
-	// move an item up or down one spot
-	// @todo make it work
+	/**
+     * Change the order of an item in the TOC, either up or down by one
+     * 
+     * @var string $direction Either 'up' or 'down'
+     * @var int $item_id Numerical ID of the TOC item to move
+     */
 	function reorder($direction = 'up', $item_id = 0)
 	{
 		global $db;
@@ -149,9 +157,9 @@ class TopicTOC
 		}
 
 		
-		$subselect = 'SELECT item_id FROM ' . TTOC_TABLE . ' WHERE location = (c_order ' . (($direction == 'up') ? '+' : '-') . ' 1) AND topic_id = ' . (int) $this->topic_id;
+		$subselect = 'SELECT id FROM ' . TTOC_TABLE . ' WHERE location = (c_order ' . (($direction == 'up') ? '+' : '-') . ' 1) AND topic = ' . (int) $this->topic_id;
 		// first we have to select the item's current position
-		$sql = 'SELECT location AS c_order, max_order AS (SELECT MAX(location) FROM ' . TTOC_TABLE . ' WHERE topic_id = ' . $this->topic_id . '), consecutive AS (' . $subselect . ') FROM ' . TTOC_TABLE . ' WHERE item_id = ' . (int) $item_id;
+		$sql = 'SELECT location AS c_order, max_order AS (SELECT MAX(location) FROM ' . TTOC_TABLE . ' WHERE topic = ' . $this->topic_id . '), consecutive AS (' . $subselect . ') FROM ' . TTOC_TABLE . ' WHERE id = ' . (int) $item_id;
 		$result = $db->sql_query($sql);
 		$row = $db->sql_fetchrow($result);
 		$db->sql_freeresult($result);
@@ -185,28 +193,35 @@ class TopicTOC
 		// Now we need to update the order
 		// First, depending on the operation, we do the opposite
 		// operation to the item above or below the current item
-		$sql = 'UPDATE ' . TTOC_TABLE . '
-				SET location = (location ' . (($direction == 'up') ? '-' : '+') . ' 1)
-				WHERE item_id = ' . (int) $row['consecutive'];
+		$sql = 'UPDATE ' . TTOC_TABLE . 'SET location = (location ' . (($direction == 'up') ? '-' : '+') . ' 1)
+        WHERE item_id = ' . (int) $row['consecutive'];
 		$result = $db->sql_query($sql);
 		$db->sql_freeresult($result);
 		// Then we update the current item's order
 		$sql = 'UPDATE ' . TTOC_TABLE . '
 				SET location = ' . $order . '
-				WHERE item_id = ' . $item_id;
+				WHERE id = ' . $item_id;
 		$result = $db->sql_query($sql);
 		$db->sql_freeresult($result);
 		return true;
 	}
-	
+    	
 	/**
 	 * Delete an item from the table of contents
+     *
+     * @var int $id ID of either the post that is related to the TOC item to delete or the item's ID itself
+     * @var bool $post_id If true, use the $id given as the post id; false (default) uses $id as the item's id
 	 */
-	function delete($post_id)
+	function delete($id, $post_id = false)
 	{
 		global $db;
+        if(empty($id))
+        {
+            return false;
+        }
+        $where = ($post_id) ? ' post ' : ' id ';
 		// First, make sure the item is there
-		$sql = 'SELECT * FROM ' . TTOC_TABLE . ' WHERE post_id = ' . (int) $post_id;
+		$sql = 'SELECT * FROM ' . TTOC_TABLE . ' WHERE' . $where . '= ' . (int) $id;
 		$result = $db->sql_query($sql);
 		$row = $db->sql_fetchrow($result);
 		$db->sql_freeresult($result);
@@ -216,7 +231,7 @@ class TopicTOC
 		}
 		
 		// now remove it
-		$sql = 'DELETE FROM ' . TTOC_TABLE . ' WHERE post_id = ' . (int) $post_id;
+		$sql = 'DELETE FROM ' . TTOC_TABLE . ' WHERE' . $where . '= ' . (int) $id;
 		$result = $db->sql_query($sql);
 		$db->sql_freeresult($result);
 
@@ -238,17 +253,28 @@ class TopicTOC
 		
 		// We need to get the user ID of the topic starter to see if the current user can modify the TOC
 		$sql = 'SELECT topic_starter FROM ' . TOPICS_TABLE . ' WHERE topic_id = ' . (int) $this->topic_id;
+        $result = $db->sql_query($sql);
+        $topic_starter = $db->sql_fetchfield('topic_starter');
+        $db->sql_freeresult($result);
 
 		// The item block
 		$sql = 'SELECT * FROM ' . TTOC_TABLE . ' WHERE topic_id = ' . $this->topic_id . ' ORDER BY location ASC';
 		$result = $db->sql_query($sql);
 		while($row = $db->sql_fetchrow($result))
 		{
-				$template->assign_block_vars('ttoc', array(
-						'TITLE'		=> $row['title'],
-						'URL'		=> append_sid($phpbb_root_path . 'viewtopic.' . $phpEx, array('t' => $this->topic_id, 'p' => $row['post_id'])),
-						'S_REORDER'	=> ($auth->acl_get('m_') || )
-				));
+			$template->assign_block_vars('ttoc', array(
+				'TITLE'		    => $row['title'],
+				'URL'	    	=> append_sid($phpbb_root_path . 'viewtopic.' . $phpEx, array('t' => $this->topic_id, 'p' => $row['post_id'])),
+				'S_REORDER'	    => ($auth->acl_get('m_') || ($user->data['user_id'] == $topic_starter)) ? true : false,
+                
+                'U_ORDER_UP'    => append_sid($phpbb_root_path . 'viewtopic.' . $phpEx, array('t' => $this->topic_id, 'p' => $row['post_id'], 'ttoc_act' => 'up', 'i' => $row['id'])),
+                'U_ORDER_DOWN'  => append_sid($phpbb_root_path . 'viewtopic.' . $phpEx, array('t' => $this->topic_id, 'p' => $row['post_id'], 'ttoc_act' => 'down', 'i' => $row['id'])),
+                'U_DELETE'      => 'U_ORDER_UP'    => append_sid($phpbb_root_path . 'viewtopic.' . $phpEx, array('t' => $this->topic_id, 'p' => $row['post_id'], 'ttoc_act' => 'delete', 'i' => $row['id'])),
+                
+                'IMG_DELETE'    => $user->img('icon_post_delete', 'TTOC_DELETE'),
+                'IMG_UP'        => $user->img('icon_ttoc_up', 'TTOC_UP'),
+                'IMG_DOWN'      => $user->img('icon_ttoc_down', 'TTOC_DOWN'),
+			));
 		}
 		$db->sql_freeresult($result);
 	}
