@@ -6,7 +6,7 @@
 *  Topic Table of Contents Class and Methods
 *-------------------------------------------------------------------
 *    Script info:
-* Version:    	1.0.0
+* Version:        1.0.0
 * Copyright:	(C) 2010 | David King
 * License:		http://opensource.org/licenses/gpl-2.0.php | GNU Public License v2
 * Package:		phpBB3

@@ -47,12 +47,6 @@
         <file from="root/umil/*.*" to="umil/*.*" />
         <file from="root/topic_toc_install.php" to="topic_toc_install.php" />
 	</copy>
-	<!--<open src="includes/constants.php">
-		<edit>
-			<find><![CDATA[// Additional tables]]></find>
-			<action type="after-add"><![CDATA[define('TTOC_TABLE', $table_prefix . 'ttoc');]]></action>
-		</edit>
-	</open>-->
     <open src="styles/prosilver/template/viewtopic_body.html">
         <edit>
             <find><![CDATA[<div class="topic-actions">]]></find>
@@ -60,7 +54,7 @@
         </edit>
         <edit>
             <find><![CDATA[<!-- IF postrow.U_QUOTE --><li class="quote-icon"><a href="{postrow.U_QUOTE}" title="{L_REPLY_WITH_QUOTE}"><span>{L_REPLY_WITH_QUOTE}</span></a></li><!-- ENDIF -->]]></find>
-            <action type="after-add"><![CDATA[<!-- IF postrow.S_TTOC --><li class="ttoc-add-icon"><a href="{postrow.U_TTOC_ADD}"><span>{L_ADD_TO_TOC}</span></a></li><!-- ENDIF -->]]></action>
+            <action type="after-add"><![CDATA[    				<!-- IF postrow.S_TTOC --><li class="ttoc-add-icon"><a href="{postrow.U_TTOC_ADD}" title="{L_ADD_TO_TOC}"><span>{L_ADD_TO_TOC}</span></a></li><!-- ENDIF -->]]></action>
         </edit>
     </open>
 	<php-installer>topic_toc_install.php</php-installer>
