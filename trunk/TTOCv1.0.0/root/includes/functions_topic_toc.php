@@ -6,7 +6,7 @@
 *  Topic Table of Contents Class and Methods
 *-------------------------------------------------------------------
 *    Script info:
-* Version:		1.0.0
+* Version:    	1.0.0
 * Copyright:	(C) 2010 | David King
 * License:		http://opensource.org/licenses/gpl-2.0.php | GNU Public License v2
 * Package:		phpBB3
@@ -32,7 +32,7 @@ class TopicTOC
 	/**
 	 * @var Topic ID
 	 */
-	private $topic_id = 0;
+	public $topic_id = 0;
 	/**
 	 * @var Items within the TOC
 	 */
@@ -249,27 +249,27 @@ class TopicTOC
 	 */
 	function display()
 	{
-		global $template, $user, $auth, $phpbb_root_path;
+		global $template, $user, $auth, $phpbb_root_path, $db, $phpEx;
 		
 		// We need to get the user ID of the topic starter to see if the current user can modify the TOC
-		$sql = 'SELECT topic_starter FROM ' . TOPICS_TABLE . ' WHERE topic_id = ' . (int) $this->topic_id;
+		$sql = 'SELECT topic_poster FROM ' . TOPICS_TABLE . ' WHERE topic_id = ' . (int) $this->topic_id;
         $result = $db->sql_query($sql);
         $topic_starter = $db->sql_fetchfield('topic_starter');
         $db->sql_freeresult($result);
 
 		// The item block
-		$sql = 'SELECT * FROM ' . TTOC_TABLE . ' WHERE topic_id = ' . $this->topic_id . ' ORDER BY location ASC';
+		$sql = 'SELECT * FROM ' . TTOC_TABLE . ' WHERE topic = ' . $this->topic_id . ' ORDER BY location ASC';
 		$result = $db->sql_query($sql);
 		while ($row = $db->sql_fetchrow($result))
 		{
 			$template->assign_block_vars('ttoc', array(
 				'TITLE'		    => $row['title'],
-				'URL'	    	=> append_sid($phpbb_root_path . 'viewtopic.' . $phpEx, array('t' => $this->topic_id, 'p' => $row['post_id'])),
+				'URL'	    	=> append_sid($phpbb_root_path . 'viewtopic.' . $phpEx, array('t' => $this->topic_id, 'p' => $row['post'])),
 				'S_REORDER'	    => ($auth->acl_get('m_') || ($user->data['user_id'] == $topic_starter)) ? true : false,
                 
-                'U_ORDER_UP'    => append_sid($phpbb_root_path . 'viewtopic.' . $phpEx, array('t' => $this->topic_id, 'p' => $row['post_id'], 'ttoc_act' => 'up', 'i' => $row['id'])),
-                'U_ORDER_DOWN'  => append_sid($phpbb_root_path . 'viewtopic.' . $phpEx, array('t' => $this->topic_id, 'p' => $row['post_id'], 'ttoc_act' => 'down', 'i' => $row['id'])),
-                'U_DELETE'      => 'U_ORDER_UP'    => append_sid($phpbb_root_path . 'viewtopic.' . $phpEx, array('t' => $this->topic_id, 'p' => $row['post_id'], 'ttoc_act' => 'delete', 'i' => $row['id'])),
+                'U_ORDER_UP'    => append_sid($phpbb_root_path . 'viewtopic.' . $phpEx, array('t' => $this->topic_id, 'p' => $row['post'], 'ttoc_act' => 'up', 'i' => $row['id'])),
+                'U_ORDER_DOWN'  => append_sid($phpbb_root_path . 'viewtopic.' . $phpEx, array('t' => $this->topic_id, 'p' => $row['post'], 'ttoc_act' => 'down', 'i' => $row['id'])),
+                'U_DELETE'      => append_sid($phpbb_root_path . 'viewtopic.' . $phpEx, array('t' => $this->topic_id, 'p' => $row['post'], 'ttoc_act' => 'delete', 'i' => $row['id'])),
                 
                 'IMG_DELETE'    => $user->img('icon_post_delete', 'TTOC_DELETE'),
                 'IMG_UP'        => $user->img('icon_ttoc_up', 'TTOC_UP'),
