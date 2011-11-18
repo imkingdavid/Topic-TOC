@@ -9,7 +9,8 @@
 	
 	<description lang="en">This MOD allows the topic author and moderators to pick important posts within a topic to be arranged in a Table of Contents for quick and easy access. This MOD utilizes phpBB's hook architecture, which decreases the amount of file edits needed and makes installation fast and easy!</description>
 
-	<author-notes lang="en">If you would like to make a donation for my work done on this MOD as well as other MODs, you may do so by going to my website (http://www.thedavidking.com/) and clicking the Donate button in the header. All donations are voluntary but appreciated.</author-notes>
+	<author-notes lang="en">If you would like to make a donation for my work done on this MOD as well as other MODs, you may do so by going to my website (http://www.thedavidking.com/) and clicking the Donate button in the header. All donations are voluntary but appreciated.
+    Some icons in use from FamFamFam Silk Icon Pack: http://www.famfamfam.com/lab/icons/silk/</author-notes>
 
 	<author-group>
 		<author>
