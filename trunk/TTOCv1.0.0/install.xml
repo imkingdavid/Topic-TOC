@@ -60,7 +60,7 @@
         </edit>
         <edit>
             <find><![CDATA[<!-- IF postrow.U_QUOTE --><li class="quote-icon"><a href="{postrow.U_QUOTE}" title="{L_REPLY_WITH_QUOTE}"><span>{L_REPLY_WITH_QUOTE}</span></a></li><!-- ENDIF -->]]></find>
-            <action type="after-add"><![CDATA[<!-- IF S_REORDER --><li class="ttoc-add-icon"><a href="{postrow.U_TTOC_ADD}"><span>{L_ADD_TO_TOC}</span></a></li><!-- ENDIF -->]]></action>
+            <action type="after-add"><![CDATA[<!-- IF postrow.S_TTOC --><li class="ttoc-add-icon"><a href="{postrow.U_TTOC_ADD}"><span>{L_ADD_TO_TOC}</span></a></li><!-- ENDIF -->]]></action>
         </edit>
     </open>
 	<php-installer>topic_toc_install.php</php-installer>

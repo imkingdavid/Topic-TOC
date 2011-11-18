@@ -26,6 +26,8 @@ abstract class hook_ttoc
      */
     static function start(phpbb_hook $hook)
     {
+        global $user;
+        $user->add_lang('mods/topic_toc');
         //don't break the UMIL install
         if (!defined('UMIL_AUTO') && !defined('IN_INSTALL'))
         {
@@ -41,8 +43,7 @@ abstract class hook_ttoc
 	 */
     static function setup()
     {
-		global $user, $table_prefix, $phpbb_root_path, $phpEx;
-        $user->add_lang('mods/topic_toc');
+		global $table_prefix, $phpbb_root_path, $phpEx;
         if (!defined('TTOC_TABLE'))
         {
             define('TTOC_TABLE', $table_prefix . 'ttoc');
@@ -55,7 +56,7 @@ abstract class hook_ttoc
     /**
      * Do all of the stuff needed
      *
-     * @return void
+     * @return bool
      */
     static function go()
     {
@@ -65,14 +66,17 @@ abstract class hook_ttoc
 		$action = request_var('ttoc_act', '', true);
 		$id = request_var('i', 0);
 		
+        
     	if (!empty($topic) || !empty($post))
         {
-			// use post id to get topic ID
+			// use post ID to get topic ID
+            // if the topic ID is not provided
 			if(empty($topic))
 			{
 				$sql = 'SELECT topic_id FROM ' . POSTS_TABLE . ' WHERE post_id = ' . (int) $post;
 				$result = $db->sql_query($sql);
 				$topic = $db->sql_fetchfield('topic_id');
+                $db->sql_freeresult($result);
 				if(empty($topic))
 				{
 					return false;
@@ -98,19 +102,22 @@ abstract class hook_ttoc
                     break;
                     
                     default:
+                        return false;
                     break;
                 }
-                // Because everything was done before this was called,
-                // we don't have to reload the page yet again to see the changes.
-                // Let's go ahead and set the template variables.
 			}
-			$ttoc->display();
+            // Because everything was done before this was called,
+            // we don't have to reload the page yet again to see the changes.
+            // Let's go ahead and set the template variables.
+			$topic_starter = $ttoc->display();
 			// Of course, we'll need to also inject the URL to add a post to the TOC
 			// into the postrow for access within viewtopic
 			foreach ($template->_tpldata['postrow'] as $postrow)
 			{
+                $postrow['S_TTOC'] = ($auth->acl_get('m_') || ($user->data['user_id'] == $topic_starter)) ? true : false,
 				$postrow['U_TTOC_ADD'] = append_sid($phpbb_root_path . 'viewtopic.' . $phpEx, array('t' => $ttoc->topic_id, 'p' => $postrow['POST_ID'], 'ttoc_act' => 'add', 'i' => $id));
 			}
+            return true;
         }
     }
 }

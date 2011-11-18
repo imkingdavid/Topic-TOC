@@ -38,14 +38,14 @@ if (empty($lang) || !is_array($lang))
 
 $lang = array_merge($lang, array(
 	//! MOD Title for install script
-	'TOPIC_TOC'					=> 'Topic Table of Contents',
+	'TOPIC_TOC'			        		=> 'Topic Table of Contents',
 	//! Install
 	'INSTALL_TOPIC_TOC'					=> 'Install Topic Table of Contents',
 	'INSTALL_TOPIC_TOC_CONFIRM'			=> 'Are you ready to install Topic Table of Contents?',
 
 	//! Uninstall
-	'UNINSTALL_TOPIC_TOC'					=> 'Uninstall Topic Table of Contents',
-	'UNINSTALL_TOPIC_TOC_CONFIRM'			=> 'Are you ready to uninstall Topic Table of Contents?  All settings and data saved by this mod will be removed! You will have to manually remove any files and undo any file edits, which can be found in the MOD\'s install.xml file.',
+	'UNINSTALL_TOPIC_TOC'			    => 'Uninstall Topic Table of Contents',
+	'UNINSTALL_TOPIC_TOC_CONFIRM'		=> 'Are you ready to uninstall Topic Table of Contents?  All settings and data saved by this mod will be removed! You will have to manually remove any files and undo any file edits, which can be found in the MOD\'s install.xml file.',
 	
 	//! Update
 	'UPDATE_TOPIC_TOC'					=> 'Update Topic Table of Contents',

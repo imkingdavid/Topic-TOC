@@ -236,6 +236,7 @@ class TopicTOC
 		$db->sql_freeresult($result);
 
 		// finally, reorder the subsequent items down by 1 to make up for the item being gone
+        // otherwise there could be some odd errors with ordering later on.
 		$sql = 'UPDATE ' . TTOC_TABLE . ' SET location = (location - 1) WHERE location > ' . (int) $row['location'] . ' AND topic = ' . (int) $this->topic_id;
 		$result = $db->sql_query($sql);
 		$db->sql_query($sql);
@@ -279,5 +280,6 @@ class TopicTOC
 			));
 		}
 		$db->sql_freeresult($result);
+        return $topic_starter;
 	}
 }
