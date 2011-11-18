@@ -1,19 +1,23 @@
 <!-- IF .ttoc -->
-<div class="post bg1">
+<div class="post bg3">
     <div class="inner"><span class="corners-top"><span></span></span>
+    <div class="postbody">
+        <div class="content">
 		<h2>{L_TOC_TITLE}</h2>
 		<p>{L_TOC_EXPLAIN}</p>
         <p><ol>
 		<!-- BEGIN ttoc -->
 			<li>
-                <!-- IF S_REORDER -->
-                    <a id="ttoc_del" href="{U_DELETE}">D</a>
-                    <a id="ttoc_up" href="{U_UP}">U</a>
-                    <a id="ttoc_down" href="{U_DOWN"}>D</a>
+                <!-- IF ttoc.S_REORDER -->
+                    <a id="ttoc_del" href="{ttoc.U_DELETE}">D</a>
+                    <a id="ttoc_up" href="{ttoc.U_ORDER_UP}">U</a>
+                    <a id="ttoc_down" href="{ttoc.U_ORDER_DOWN}">D</a>
                 <!-- ENDIF -->
                 <a href="{ttoc.URL}">{ttoc.TITLE}</a></li>
 		<!-- END ttoc -->
         </ol></p>
+        </div>
+    </div>
 	<span class="corners-bottom"><span></span></span></div>
 </div>
 <!-- ENDIF -->
