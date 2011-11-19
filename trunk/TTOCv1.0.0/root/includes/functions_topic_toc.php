@@ -142,6 +142,9 @@ class TopicTOC
      * 
      * @var string $direction Either 'up' or 'down'
      * @var int $item_id Numerical ID of the TOC item to move
+     *
+     * @note 'UP' is DECREASING and 'DOWN' is INCREASING. UP and DOWN refer to
+     * 		 the item's location in the list, which is ordered ascending from 1, going up.
      */
 	function reorder($direction = 'up', $item_id = 0)
 	{
@@ -152,34 +155,49 @@ class TopicTOC
 			return false;
 		}
 
+
+		// The next three queries do the following:
+		// 1) get the highest location/order in the table
+		// 2) get the item's current location.
+		// 3) get the consecutive item's id (up or down, depending on direction of reorder)
+
 		
-		$subselect = 'SELECT id FROM ' . TTOC_TABLE . ' WHERE location = (c_order ' . (($direction == 'up') ? '+' : '-') . ' 1) AND topic = ' . (int) $this->topic_id;
-		// first we have to select the item's current position
-		$sql = 'SELECT location AS c_order, max_order AS (SELECT MAX(location) FROM ' . TTOC_TABLE . ' WHERE topic = ' . $this->topic_id . '), consecutive AS (' . $subselect . ') FROM ' . TTOC_TABLE . ' WHERE id = ' . (int) $item_id;
+		$sql = 'SELECT MAX(location) AS max_order FROM ' . TTOC_TABLE . ' WHERE topic = ' . $this->topic_id;
 		$result = $db->sql_query($sql);
-		$row = $db->sql_fetchrow($result);
+		$max_order = $db->sql_fetchfield('max_order');
 		$db->sql_freeresult($result);
-		if (empty($row))
+		
+		$sql = 'SELECT location FROM ' . TTOC_TABLE . ' WHERE id = ' . (int) $item_id;
+		$result = $db->sql_query($sql);
+		$order = $db->sql_fetchfield('location');
+		$db->sql_freeresult($result);
+		if (empty($order))
 		{
 			return false;
 		}
+		$sql = 'SELECT id FROM ' . TTOC_TABLE . ' WHERE location = (' . $order . ' ' . (($direction == 'up') ? '-' : '+') . ' 1) AND topic = ' . (int) $this->topic_id;
+		$result = $db->sql_query($sql);
+		$consecutive = $db->sql_fetchfield('id');
+		$db->sql_freeresult($result);
+
 		$topic_id = $this->topic_id;
-		$order = $row['c_order'];
+
+		// If the following is confusing, note the @note in the function header block
 		switch($direction)
 		{
 			case 'up':
-				$order++;
-				// if the requested order is greater than the maximum order
-				if ($row['max_order'] > $order)
+				$new_order = $order - 1;
+				// if the new order is less than 1
+				if ($max_order < 1)
 				{
 					return false;
 				}
 			break;
 
 			case 'down':
-				$order--;
-				// if the requested order is less than the maximum order
-				if ($row['max_order'] < $order)
+				$new_order = $order + 1;
+				// if the new order is greater than the maximum
+				if ($max_order > $max_order)
 				{
 					return false;
 				}
@@ -189,13 +207,12 @@ class TopicTOC
 		// Now we need to update the order
 		// First, depending on the operation, we do the opposite
 		// operation to the item above or below the current item
-		$sql = 'UPDATE ' . TTOC_TABLE . 'SET location = (location ' . (($direction == 'up') ? '-' : '+') . ' 1)
-        WHERE item_id = ' . (int) $row['consecutive'];
+		$sql = 'UPDATE ' . TTOC_TABLE . ' SET location = ' . $order . ' WHERE id = ' . (int) $consecutive;
 		$result = $db->sql_query($sql);
 		$db->sql_freeresult($result);
 		// Then we update the current item's order
 		$sql = 'UPDATE ' . TTOC_TABLE . '
-				SET location = ' . $order . '
+				SET location = ' . $new_order . '
 				WHERE id = ' . $item_id;
 		$result = $db->sql_query($sql);
 		$db->sql_freeresult($result);
