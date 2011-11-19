@@ -7,7 +7,7 @@
 *-------------------------------------------------------------------
 *    Script info:
 * Version:        1.0.0
-* Copyright:	(C) 2010 | David King
+* Copyright:    (C) 2010 | David King
 * License:		http://opensource.org/licenses/gpl-2.0.php | GNU Public License v2
 * Package:		phpBB3
 *
@@ -63,9 +63,9 @@ class TopicTOC
             return false;
         }
 		// make sure the post is in the specified topic
-		$sql = 'SELECT post_title FROM ' . TOPICS_TABLE . ' WHERE post_id = ' . (int) $post_id . ' AND topic_id = ' . (int) $this->topic_id;
+		$sql = 'SELECT post_subject FROM ' . POSTS_TABLE . ' WHERE post_id = ' . (int) $post_id . ' AND topic_id = ' . (int) $this->topic_id;
 		$result = $db->sql_query($sql);
-		$post_title = $db->sql_fetchfield('post_title');
+		$post_title = $db->sql_fetchfield('post_subject');
 		$db->sql_freeresult($result);
 		//is the post in the topic?
 		if (empty($post_title))
@@ -97,6 +97,7 @@ class TopicTOC
 		$title = (empty($title)) ? $post_title : $title;
 		$order = ($order) ? $order : ($last_pos + 1);
 		// if the item is being placed before other items reorder them
+		$reordered = false;
 		if ($order < $last_pos)
 		{
 			// increment all TOC items order by one if they come after the current item's slot
@@ -118,7 +119,7 @@ class TopicTOC
 			// what order to put it in
 			'location'		=> (int) $order,
 		);
-		$sql = 'INSERT INTO ' . TTOC_TABLE . ' ' . $db->sql_build_query('INSERT', $sql_ary);
+		$sql = 'INSERT INTO ' . TTOC_TABLE . ' ' . $db->sql_build_array('INSERT', $sql_ary);
 		$result = $db->sql_query($sql);
 		$db->sql_freeresult($result);
 		// Because we changed the order of the items, make sure it inserted properly
@@ -129,7 +130,7 @@ class TopicTOC
 		$db->sql_freeresult($result);
 		// if there is no item, it must not have been inserted.
 		// roll back any changes made
-		if (empty($item['title']) && $reordered)
+		if (empty($item) && $reordered)
 		{
 			$sql = 'UPDATE ' . TTOC_TABLE . ' SET location = (location - 1) WHERE topic = ' . $this->topic_id . ' AND location > ' . (int) $order;
 			$result = $db->sql_query($sql);
@@ -273,12 +274,15 @@ class TopicTOC
                 'U_ORDER_UP'    => append_sid($phpbb_root_path . 'viewtopic.' . $phpEx, array('f' => $forum_id, 't' => $this->topic_id, 'p' => $row['post'], 'ttoc_act' => 'up', 'i' => $row['id'])),
                 'U_ORDER_DOWN'  => append_sid($phpbb_root_path . 'viewtopic.' . $phpEx, array('f' => $forum_id, 't' => $this->topic_id, 'p' => $row['post'], 'ttoc_act' => 'down', 'i' => $row['id'])),
                 'U_DELETE'      => append_sid($phpbb_root_path . 'viewtopic.' . $phpEx, array('f' => $forum_id, 't' => $this->topic_id, 'p' => $row['post'], 'ttoc_act' => 'delete', 'i' => $row['id'])),
-                
-                'IMG_DELETE'    => $user->img('icon_post_delete', 'TTOC_DELETE'),
-                'IMG_UP'        => $user->img('icon_ttoc_up', 'TTOC_UP'),
-                'IMG_DOWN'      => $user->img('icon_ttoc_down', 'TTOC_DOWN'),
 			));
 		}
+        // non loop-specific variables
+        $template->assign_vars(array(
+            'IMG_DELETE'    => $phpbb_root_path . 'images/icons/ttoc/delete.png',
+            'IMG_UP'        => $phpbb_root_path . 'images/icons/ttoc/bullet_up.png',
+            'IMG_DOWN'      => $phpbb_root_path . 'images/icons/ttoc/bullet_down.png',
+            'TOTAL_ITEMS'   => count($row),
+        ));
 		$db->sql_freeresult($result);
         return $topic_starter;
 	}
