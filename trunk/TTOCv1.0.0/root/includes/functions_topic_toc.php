@@ -108,15 +108,10 @@ class TopicTOC
 			// set this variable so we know this was run
 			$reordered = true;
 		}
-		// now add it to the toc table
 		$sql_ary = array(
-			// what topic is this in?
 			'topic'	=> (int) $this->topic_id,
-			// which post to link to
 			'post'	=> (int) $post_id,
-			// default to the post title if no other title is given
 			'title'		=> $title,
-			// what order to put it in
 			'location'		=> (int) $order,
 		);
 		$sql = 'INSERT INTO ' . TTOC_TABLE . ' ' . $db->sql_build_array('INSERT', $sql_ary);
@@ -264,10 +259,13 @@ class TopicTOC
 		// The item block
 		$sql = 'SELECT * FROM ' . TTOC_TABLE . ' WHERE topic = ' . $this->topic_id . ' ORDER BY location ASC';
 		$result = $db->sql_query($sql);
+		$total = 0;
 		while ($row = $db->sql_fetchrow($result))
 		{
+			$total++;
 			$template->assign_block_vars('ttoc', array(
 				'TITLE'		    => $row['title'],
+				'LOCATION'		=> $row['location'],
 				'URL'	    	=> append_sid($phpbb_root_path . 'viewtopic.' . $phpEx, array('f' => $forum_id, 't' => $this->topic_id, 'p' => $row['post'])) . '#p' . $row['post'],
 				'S_REORDER'	    => ($auth->acl_get('m_') || ($user->data['user_id'] == $topic_starter)) ? true : false,
                 
@@ -281,7 +279,7 @@ class TopicTOC
             'IMG_DELETE'    => $phpbb_root_path . 'images/icons/ttoc/delete.png',
             'IMG_UP'        => $phpbb_root_path . 'images/icons/ttoc/bullet_up.png',
             'IMG_DOWN'      => $phpbb_root_path . 'images/icons/ttoc/bullet_down.png',
-            'TOTAL_ITEMS'   => count($row),
+            'TOTAL_ITEMS'   => $total,
         ));
 		$db->sql_freeresult($result);
         return $topic_starter;
