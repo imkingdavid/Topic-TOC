@@ -113,13 +113,13 @@ abstract class hook_ttoc
                 // Because everything was done before this was called,
                 // we don't have to reload the page yet again to see the changes.
                 // Let's go ahead and set the template variables.
-                $topic_starter = $ttoc->display();
+                $info = $ttoc->display();
                 // Of course, we'll need to also inject the URL to add a post to the TOC
                 // into the postrow for access within viewtopic
-                for($count = 0; $count < count($template->_tpldata['postrow']); $count++)
+                for ($count = 0; $count < count($template->_tpldata['postrow']); $count++)
                 {
                     $template->_tpldata['postrow'][$count] += array(
-                        'S_TTOC'        => ($auth->acl_get('m_') || ($user->data['user_id'] == $topic_starter)) ? true : false,
+                        'S_TTOC'        => (($auth->acl_get('m_') || ($user->data['user_id'] == $info['topic_starter'])) && !in_array($template->_tpldata['postrow'][$count]['POST_ID'], $info['items'])) ? true : false,
                         'U_TTOC_ADD'    => append_sid($phpbb_root_path . 'viewtopic.' . $phpEx, array('t' => $ttoc->topic_id, 'p' => $template->_tpldata['postrow'][$count]['POST_ID'], 'ttoc_act' => 'add')),
                         'IMG_ADD'       => $phpbb_root_path . 'images/icons/ttoc/add.png',
                     );

@@ -277,6 +277,7 @@ class TopicTOC
 		$sql = 'SELECT * FROM ' . TTOC_TABLE . ' WHERE topic = ' . $this->topic_id . ' ORDER BY location ASC';
 		$result = $db->sql_query($sql);
 		$total = 0;
+        $items = array();
 		while ($row = $db->sql_fetchrow($result))
 		{
 			$total++;
@@ -290,6 +291,8 @@ class TopicTOC
                 'U_ORDER_DOWN'  => append_sid($phpbb_root_path . 'viewtopic.' . $phpEx, array('f' => $forum_id, 't' => $this->topic_id, 'p' => $row['post'], 'ttoc_act' => 'down', 'i' => $row['id'])),
                 'U_DELETE'      => append_sid($phpbb_root_path . 'viewtopic.' . $phpEx, array('f' => $forum_id, 't' => $this->topic_id, 'p' => $row['post'], 'ttoc_act' => 'delete', 'i' => $row['id'])),
 			));
+            $posts[] = $row['post'];
+            
 		}
         // non loop-specific variables
         $template->assign_vars(array(
@@ -299,6 +302,7 @@ class TopicTOC
             'TOTAL_ITEMS'   => $total,
         ));
 		$db->sql_freeresult($result);
-        return $topic_starter;
+        
+        return array('topic_starter' => $topic_starter, 'posts' => $posts);
 	}
 }
