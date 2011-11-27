@@ -98,7 +98,14 @@ abstract class hook_ttoc
                         break;
                         
                         case 'delete':
-                            $ttoc->delete($id);
+                            if (empty($post))
+                            {
+                                $ttoc->delete($id);
+                            }
+                            else
+                            {
+                                $ttoc->delete($post, true);
+                            }
                         break;
                         
                         case 'add':
@@ -118,10 +125,11 @@ abstract class hook_ttoc
                 // into the postrow for access within viewtopic
                 for ($count = 0; $count < count($template->_tpldata['postrow']); $count++)
                 {
+                    $inList = in_array($template->_tpldata['postrow'][$count]['POST_ID'], $info['posts']) ? true : false;
                     $template->_tpldata['postrow'][$count] += array(
-                        'S_TTOC'        => (($auth->acl_get('m_') || ($user->data['user_id'] == $info['topic_starter'])) && !in_array($template->_tpldata['postrow'][$count]['POST_ID'], $info['items'])) ? true : false,
-                        'U_TTOC_ADD'    => append_sid($phpbb_root_path . 'viewtopic.' . $phpEx, array('t' => $ttoc->topic_id, 'p' => $template->_tpldata['postrow'][$count]['POST_ID'], 'ttoc_act' => 'add')),
-                        'IMG_ADD'       => $phpbb_root_path . 'images/icons/ttoc/add.png',
+                        'U_TTOC'        => append_sid($phpbb_root_path . 'viewtopic.' . $phpEx, array('t' => $ttoc->topic_id, 'p' => $template->_tpldata['postrow'][$count]['POST_ID'], 'ttoc_act' => ($inList ? 'delete' : 'add'))),
+                        'IMG_ADD_DEL'   => ($inList) ? $phpbb_root_path . 'images/icons/ttoc/delete.png' : $phpbb_root_path . 'images/icons/ttoc/add.png',
+                        'TTOC_ACTION' => $user->lang(($inList) ? 'DELETE_FROM_TOC' : 'ADD_TO_TOC'),
                     );
                 }
             }

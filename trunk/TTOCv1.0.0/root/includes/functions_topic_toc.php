@@ -8,7 +8,7 @@
 *    Script info:
 * Version:        1.0.0
 * Copyright:    (C) 2010 | David King
-* License:		http://opensource.org/licenses/gpl-2.0.php | GNU Public License v2
+* License:    	http://opensource.org/licenses/gpl-2.0.php | GNU Public License v2
 * Package:		phpBB3
 *
 *===================================================================
@@ -277,7 +277,7 @@ class TopicTOC
 		$sql = 'SELECT * FROM ' . TTOC_TABLE . ' WHERE topic = ' . $this->topic_id . ' ORDER BY location ASC';
 		$result = $db->sql_query($sql);
 		$total = 0;
-        $items = array();
+        $items = $posts = array();
 		while ($row = $db->sql_fetchrow($result))
 		{
 			$total++;
@@ -300,6 +300,7 @@ class TopicTOC
             'IMG_UP'        => $phpbb_root_path . 'images/icons/ttoc/bullet_up.png',
             'IMG_DOWN'      => $phpbb_root_path . 'images/icons/ttoc/bullet_down.png',
             'TOTAL_ITEMS'   => $total,
+            'S_TTOC'        => (($auth->acl_get('m_') || ($user->data['user_id'] == $info['topic_starter']))) ? true : false,
         ));
 		$db->sql_freeresult($result);
         
